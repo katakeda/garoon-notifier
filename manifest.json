@@ -1,0 +1,14 @@
+{
+    "name": "garoon-notifier",
+    "version": "0.0.0",
+    "description": "Chrome extension to send Garoon notifications",
+    "permissions": ["notifications", "storage"],
+    "background": {
+        "scripts": ["background.js"],
+        "persistent": false
+    },
+    "browser_action": {
+        "default_popup": "popup.html"
+    },
+    "manifest_version": 2 
+}
