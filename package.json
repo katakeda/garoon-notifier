@@ -1,0 +1,14 @@
+{
+    "name": "garoon-notifier",
+    "version": "0.0.0",
+    "description": "Chrome extension to send Garoon notifications",
+    "main": "background.js",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "build": "browserify popup.js -o bundle.js"
+    },
+    "license": "ISC",
+    "dependencies": {
+        "socket.io-client": "^2.2.0"
+    }
+}

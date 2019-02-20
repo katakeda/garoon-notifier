@@ -1,3 +1,9 @@
+const io = require("socket.io-client");
+const socket = io("http://localhost:8000");
+socket.on("notification", (data) => {
+    alert(`${data.user}: ${data.event.subject}`);
+})
+
 async function submit()
 {
     try {
@@ -12,8 +18,10 @@ async function submit()
         const result = await response.json();
         if (!result.success) {
             alert(result.error.message);
+            return false;
         }
 
+        socket.emit("login", {user: user, events: result.events});
         window.location.reload();
     } catch (error) {
         alert(error);
