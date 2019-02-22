@@ -24,7 +24,6 @@ class ApiController
             };
             const results = await axios.request(data);
             const events = results.data.events;
-            console.log(events);
             response.json({success: true, events: events});
         } catch (error) {
             const status = error.response.status;
