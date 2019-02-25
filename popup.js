@@ -19,38 +19,38 @@ async function submit()
             return false;
         }
 
+        const garoonLogin = document.getElementById("garoon-login");
+        const eventsList = document.getElementById("events-list");
+        const element = document.createElement("ul");
+        for (const event of result.events) {
+            const date = new Date(event.start.dateTime);
+            const list = document.createElement("li");
+            list.setAttribute("style", "font-size:12px");
+            list.innerHTML = `${date.toDateString()}: ${event.eventMenu} ${event.subject}`;
+            element.append(list);
+        }
+        eventsList.append(element);
+
+        localStorage.setItem("garoonEvents", eventsList.innerHTML);
+        localStorage.setItem("garoonUser", user);
+        chrome.runtime.sendMessage({message: "login"});
         socket.emit("login", {user: user, company: company, events: result.events});
+
         window.location.reload();
     } catch (error) {
         alert(error);
     }
 }
 
-function notification(data)
-{
-    let facilities = "";
-    for (const facility of data.event.facilities) {
-        facilities += `\n${facility.name}`;
-    }
-    const title = "Garoon Notification";
-    const message = data.event.eventMenu + data.event.subject + facilities;
-
-    chrome.notifications.onClicked.addListener(() => {
-        const url = `https://${data.company}.cybozu.com/g/schedule/view.csp?event=${data.event.id}`;
-        chrome.tabs.create({url: url});
-    })
-
-    chrome.notifications.create({
-        type: "basic",
-        iconUrl: "logo.png",
-        title: title,
-        message: message,
-    })
-}
-
 // Register handler for submit button
 const submitButton = document.getElementById("submit");
 submitButton.addEventListener("click", submit);
 
-// Register handler for notification
-socket.on("notification", notification);
+// Replace popup content if logged in
+if (localStorage.getItem("garoonUser")) {
+    const garoonLogin = document.getElementById("garoon-login");
+    const eventsList = document.getElementById("events-list");
+    eventsList.innerHTML = localStorage.getItem("garoonEvents");
+    eventsList.style.display = "block";
+    garoonLogin.style.display = "none";
+}

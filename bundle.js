@@ -1,4 +1,44 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
+const io = require("socket.io-client");
+
+// Register handler for notification
+const socket = io("http://localhost:8000");
+socket.on("notification", notification);
+
+function notification(data)
+{
+    let facilities = "";
+    for (const facility of data.event.facilities) {
+        facilities += `\n${facility.name}`;
+    }
+    const title = "Garoon Notification";
+    const message = data.event.eventMenu + data.event.subject + facilities;
+
+    chrome.notifications.onClicked.addListener(() => {
+        const url = `https://${data.company}.cybozu.com/g/schedule/view.csp?event=${data.event.id}`;
+        chrome.tabs.create({url: url});
+    })
+
+    chrome.notifications.create({
+        type: "basic",
+        iconUrl: "logo.png",
+        title: title,
+        message: message,
+    })
+}
+
+chrome.runtime.onMessage.addListener((request) => {
+    console.log("Message received:", request);
+    setTimeout(() => {
+        localStorage.removeItem("garoonEvents");
+        localStorage.removeItem("garoonUser");
+    }, 1000*60*60)
+})
+
+chrome.runtime.onInstalled.addListener(() => {
+    console.log("Installed!");
+})
+},{"socket.io-client":31}],2:[function(require,module,exports){
 module.exports = after
 
 function after(count, callback, err_cb) {
@@ -28,7 +68,7 @@ function after(count, callback, err_cb) {
 
 function noop() {}
 
-},{}],2:[function(require,module,exports){
+},{}],3:[function(require,module,exports){
 /**
  * An abstraction for slicing an arraybuffer even when
  * ArrayBuffer.prototype.slice is not supported
@@ -59,7 +99,7 @@ module.exports = function(arraybuffer, start, end) {
   return result.buffer;
 };
 
-},{}],3:[function(require,module,exports){
+},{}],4:[function(require,module,exports){
 
 /**
  * Expose `Backoff`.
@@ -146,7 +186,7 @@ Backoff.prototype.setJitter = function(jitter){
 };
 
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 /*
  * base64-arraybuffer
  * https://github.com/niklasvh/base64-arraybuffer
@@ -215,7 +255,7 @@ Backoff.prototype.setJitter = function(jitter){
   };
 })();
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 /**
  * Create a blob builder even when vendor prefixes exist
  */
@@ -317,7 +357,7 @@ module.exports = (function() {
   }
 })();
 
-},{}],6:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 /**
  * Slice reference.
  */
@@ -342,7 +382,7 @@ module.exports = function(obj, fn){
   }
 };
 
-},{}],7:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 
 /**
  * Expose `Emitter`.
@@ -507,7 +547,7 @@ Emitter.prototype.hasListeners = function(event){
   return !! this.listeners(event).length;
 };
 
-},{}],8:[function(require,module,exports){
+},{}],9:[function(require,module,exports){
 
 module.exports = function(a, b){
   var fn = function(){};
@@ -515,7 +555,7 @@ module.exports = function(a, b){
   a.prototype = new fn;
   a.prototype.constructor = a;
 };
-},{}],9:[function(require,module,exports){
+},{}],10:[function(require,module,exports){
 (function (process){
 /**
  * This is the web browser implementation of `debug()`.
@@ -714,7 +754,7 @@ function localstorage() {
 }
 
 }).call(this,require('_process'))
-},{"./debug":10,"_process":45}],10:[function(require,module,exports){
+},{"./debug":11,"_process":46}],11:[function(require,module,exports){
 
 /**
  * This is the common logic for both the Node.js and web browser
@@ -941,7 +981,7 @@ function coerce(val) {
   return val;
 }
 
-},{"ms":27}],11:[function(require,module,exports){
+},{"ms":28}],12:[function(require,module,exports){
 
 module.exports = require('./socket');
 
@@ -953,7 +993,7 @@ module.exports = require('./socket');
  */
 module.exports.parser = require('engine.io-parser');
 
-},{"./socket":12,"engine.io-parser":20}],12:[function(require,module,exports){
+},{"./socket":13,"engine.io-parser":21}],13:[function(require,module,exports){
 /**
  * Module dependencies.
  */
@@ -1701,7 +1741,7 @@ Socket.prototype.filterUpgrades = function (upgrades) {
   return filteredUpgrades;
 };
 
-},{"./transport":13,"./transports/index":14,"component-emitter":7,"debug":9,"engine.io-parser":20,"indexof":25,"parseqs":28,"parseuri":29}],13:[function(require,module,exports){
+},{"./transport":14,"./transports/index":15,"component-emitter":8,"debug":10,"engine.io-parser":21,"indexof":26,"parseqs":29,"parseuri":30}],14:[function(require,module,exports){
 /**
  * Module dependencies.
  */
@@ -1863,7 +1903,7 @@ Transport.prototype.onClose = function () {
   this.emit('close');
 };
 
-},{"component-emitter":7,"engine.io-parser":20}],14:[function(require,module,exports){
+},{"component-emitter":8,"engine.io-parser":21}],15:[function(require,module,exports){
 /**
  * Module dependencies
  */
@@ -1918,7 +1958,7 @@ function polling (opts) {
   }
 }
 
-},{"./polling-jsonp":15,"./polling-xhr":16,"./websocket":18,"xmlhttprequest-ssl":19}],15:[function(require,module,exports){
+},{"./polling-jsonp":16,"./polling-xhr":17,"./websocket":19,"xmlhttprequest-ssl":20}],16:[function(require,module,exports){
 (function (global){
 /**
  * Module requirements.
@@ -2161,7 +2201,7 @@ JSONPPolling.prototype.doWrite = function (data, fn) {
 };
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"./polling":17,"component-inherit":8}],16:[function(require,module,exports){
+},{"./polling":18,"component-inherit":9}],17:[function(require,module,exports){
 /* global attachEvent */
 
 /**
@@ -2578,7 +2618,7 @@ function unloadHandler () {
   }
 }
 
-},{"./polling":17,"component-emitter":7,"component-inherit":8,"debug":9,"xmlhttprequest-ssl":19}],17:[function(require,module,exports){
+},{"./polling":18,"component-emitter":8,"component-inherit":9,"debug":10,"xmlhttprequest-ssl":20}],18:[function(require,module,exports){
 /**
  * Module dependencies.
  */
@@ -2825,7 +2865,7 @@ Polling.prototype.uri = function () {
   return schema + '://' + (ipv6 ? '[' + this.hostname + ']' : this.hostname) + port + this.path + query;
 };
 
-},{"../transport":13,"component-inherit":8,"debug":9,"engine.io-parser":20,"parseqs":28,"xmlhttprequest-ssl":19,"yeast":39}],18:[function(require,module,exports){
+},{"../transport":14,"component-inherit":9,"debug":10,"engine.io-parser":21,"parseqs":29,"xmlhttprequest-ssl":20,"yeast":40}],19:[function(require,module,exports){
 (function (Buffer){
 /**
  * Module dependencies.
@@ -3122,7 +3162,7 @@ WS.prototype.check = function () {
 };
 
 }).call(this,require("buffer").Buffer)
-},{"../transport":13,"buffer":43,"component-inherit":8,"debug":9,"engine.io-parser":20,"parseqs":28,"ws":42,"yeast":39}],19:[function(require,module,exports){
+},{"../transport":14,"buffer":44,"component-inherit":9,"debug":10,"engine.io-parser":21,"parseqs":29,"ws":43,"yeast":40}],20:[function(require,module,exports){
 // browser shim for xmlhttprequest module
 
 var hasCORS = require('has-cors');
@@ -3161,7 +3201,7 @@ module.exports = function (opts) {
   }
 };
 
-},{"has-cors":24}],20:[function(require,module,exports){
+},{"has-cors":25}],21:[function(require,module,exports){
 /**
  * Module dependencies.
  */
@@ -3768,7 +3808,7 @@ exports.decodePayloadAsBinary = function (data, binaryType, callback) {
   });
 };
 
-},{"./keys":21,"./utf8":22,"after":1,"arraybuffer.slice":2,"base64-arraybuffer":4,"blob":5,"has-binary2":23}],21:[function(require,module,exports){
+},{"./keys":22,"./utf8":23,"after":2,"arraybuffer.slice":3,"base64-arraybuffer":5,"blob":6,"has-binary2":24}],22:[function(require,module,exports){
 
 /**
  * Gets the keys for an object.
@@ -3789,7 +3829,7 @@ module.exports = Object.keys || function keys (obj){
   return arr;
 };
 
-},{}],22:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 /*! https://mths.be/utf8js v2.1.2 by @mathias */
 
 var stringFromCharCode = String.fromCharCode;
@@ -4001,7 +4041,7 @@ module.exports = {
 	decode: utf8decode
 };
 
-},{}],23:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 (function (Buffer){
 /* global Blob File */
 
@@ -4069,7 +4109,7 @@ function hasBinary (obj) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":43,"isarray":26}],24:[function(require,module,exports){
+},{"buffer":44,"isarray":27}],25:[function(require,module,exports){
 
 /**
  * Module exports.
@@ -4088,7 +4128,7 @@ try {
   module.exports = false;
 }
 
-},{}],25:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 
 var indexOf = [].indexOf;
 
@@ -4099,14 +4139,14 @@ module.exports = function(arr, obj){
   }
   return -1;
 };
-},{}],26:[function(require,module,exports){
+},{}],27:[function(require,module,exports){
 var toString = {}.toString;
 
 module.exports = Array.isArray || function (arr) {
   return toString.call(arr) == '[object Array]';
 };
 
-},{}],27:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 /**
  * Helpers.
  */
@@ -4260,7 +4300,7 @@ function plural(ms, n, name) {
   return Math.ceil(ms / n) + ' ' + name + 's';
 }
 
-},{}],28:[function(require,module,exports){
+},{}],29:[function(require,module,exports){
 /**
  * Compiles a querystring
  * Returns string representation of the object
@@ -4299,7 +4339,7 @@ exports.decode = function(qs){
   return qry;
 };
 
-},{}],29:[function(require,module,exports){
+},{}],30:[function(require,module,exports){
 /**
  * Parses an URI
  *
@@ -4340,7 +4380,7 @@ module.exports = function parseuri(str) {
     return uri;
 };
 
-},{}],30:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -4436,7 +4476,7 @@ exports.connect = lookup;
 exports.Manager = require('./manager');
 exports.Socket = require('./socket');
 
-},{"./manager":31,"./socket":33,"./url":34,"debug":9,"socket.io-parser":36}],31:[function(require,module,exports){
+},{"./manager":32,"./socket":34,"./url":35,"debug":10,"socket.io-parser":37}],32:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -5011,7 +5051,7 @@ Manager.prototype.onreconnect = function () {
   this.emitAll('reconnect', attempt);
 };
 
-},{"./on":32,"./socket":33,"backo2":3,"component-bind":6,"component-emitter":7,"debug":9,"engine.io-client":11,"indexof":25,"socket.io-parser":36}],32:[function(require,module,exports){
+},{"./on":33,"./socket":34,"backo2":4,"component-bind":7,"component-emitter":8,"debug":10,"engine.io-client":12,"indexof":26,"socket.io-parser":37}],33:[function(require,module,exports){
 
 /**
  * Module exports.
@@ -5037,7 +5077,7 @@ function on (obj, ev, fn) {
   };
 }
 
-},{}],33:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -5477,7 +5517,7 @@ Socket.prototype.binary = function (binary) {
   return this;
 };
 
-},{"./on":32,"component-bind":6,"component-emitter":7,"debug":9,"has-binary2":23,"parseqs":28,"socket.io-parser":36,"to-array":38}],34:[function(require,module,exports){
+},{"./on":33,"component-bind":7,"component-emitter":8,"debug":10,"has-binary2":24,"parseqs":29,"socket.io-parser":37,"to-array":39}],35:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -5554,7 +5594,7 @@ function url (uri, loc) {
   return obj;
 }
 
-},{"debug":9,"parseuri":29}],35:[function(require,module,exports){
+},{"debug":10,"parseuri":30}],36:[function(require,module,exports){
 /*global Blob,File*/
 
 /**
@@ -5697,7 +5737,7 @@ exports.removeBlobs = function(data, callback) {
   }
 };
 
-},{"./is-buffer":37,"isarray":26}],36:[function(require,module,exports){
+},{"./is-buffer":38,"isarray":27}],37:[function(require,module,exports){
 
 /**
  * Module dependencies.
@@ -6114,7 +6154,7 @@ function error(msg) {
   };
 }
 
-},{"./binary":35,"./is-buffer":37,"component-emitter":7,"debug":9,"isarray":26}],37:[function(require,module,exports){
+},{"./binary":36,"./is-buffer":38,"component-emitter":8,"debug":10,"isarray":27}],38:[function(require,module,exports){
 (function (Buffer){
 
 module.exports = isBuf;
@@ -6138,7 +6178,7 @@ function isBuf(obj) {
 }
 
 }).call(this,require("buffer").Buffer)
-},{"buffer":43}],38:[function(require,module,exports){
+},{"buffer":44}],39:[function(require,module,exports){
 module.exports = toArray
 
 function toArray(list, index) {
@@ -6153,7 +6193,7 @@ function toArray(list, index) {
     return array
 }
 
-},{}],39:[function(require,module,exports){
+},{}],40:[function(require,module,exports){
 'use strict';
 
 var alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-_'.split('')
@@ -6223,7 +6263,7 @@ yeast.encode = encode;
 yeast.decode = decode;
 module.exports = yeast;
 
-},{}],40:[function(require,module,exports){
+},{}],41:[function(require,module,exports){
 const io = require("socket.io-client");
 const socket = io("http://localhost:8000");
 
@@ -6244,43 +6284,195 @@ async function submit()
             alert(`${result.status} ${result.statusText}`);
             return false;
         }
+        result.events = [{
+      "id": "123",
+      "creator": {
+        "id": 1,
+        "code": "c000001",
+        "name": "Noboru Satoh(Satoh Noboru); Sales Department"
+      },
+      "createdAt": "2017-09-26T06:25:18Z",
+      "updater": {
+        "id": 1,
+        "code": "c000001",
+        "name": "Noboru Satoh(Satoh Noboru); Sales Department"
+      },
+      "updatedAt": "2017-09-26T06:25:18Z",
+      "eventType": "REGULAR",
+      "eventMenu": "conference",
+      "subject": "Weekly conference",
+      "notes": "This is notes.\nYou can write multiple lines.",
+      "visibilityType": "PUBLIC",
+      "useAttendanceCheck": true,
+      "companyInfo": {
+        "name": "Cybozu, Inc.",
+        "zipCode": "103-xxxx",
+        "address": "2-7-1, Nihombashi, Chuo-ku, Tokyo",
+        "route": "Nihombashi Sta. - Ginza Line - Shibuya Sta.",
+        "routeTime": "18",
+        "routeFare": "195",
+        "phone": "03-4306-xxxx"              
+      },
+      "attachments": [
+        {
+          "id": "1",
+          "name": "figure.png",
+          "contentType": "image/png",
+          "size": "64251"
+        }
+      ],
+      "start": {
+        "dateTime": "2017-09-27T14:00:00+09:00",
+        "timeZone": "Asia/Tokyo"
+      },
+      "end": {
+        "dateTime": "2017-09-27T14:00:00+09:00",
+        "timeZone": "Asia/Tokyo"
+      },
+      "isAllDay": "false",
+      "isStartOnly": "false",
+      "originalStartTimeZone": "Asia/Tokyo",
+      "originalEndTimeZone": "Asia/Tokyo",
+      "attendees": [
+        {
+          "id": 1,
+          "code": "c000001",
+          "name": "Noboru Satoh(Satoh Noboru); Sales Department",
+          "type": "USER",         
+          "attendanceResponse": {
+            "status": "PENDING",
+            "comment": "I am going to attend the meeting."
+          }
+        }
+      ],
+      "watchers": [
+        {
+          "id": 1,
+          "code": "c000001",
+          "name": "Noboru Satoh(Satoh Noboru); Sales Department",
+          "type": "USER"
+        }
+      ],
+      "facilities": [
+        {
+          "id": 1,
+          "name": "28F conference room",
+          "code": "F001"
+        }
+      ],
+      "facilityUsingPurpose": "Because of the explanation of a new plan.",
+      "facilityReservationInfo": {
+        "additionalProp1": {
+          "type": "SINGLE_LINE_TEXT",
+          "value": "Custom field value"
+        },
+        "additionalProp2": {
+          "type": "SINGLE_LINE_TEXT",
+          "value": "Custom field value"
+        },
+        "additionalProp3": {
+          "type": "SINGLE_LINE_TEXT",
+          "value": "Custom field value"
+        }
+      },
+      "facilityUsageRequests": [
+        {
+          "status": "APPROVED",
+          "facility": {
+            "id": 1,
+            "name": "28F conference room",
+            "code": "F001"
+          },
+          "approvedBy": {
+            "id": 1,
+            "code": "c000001",
+            "name": "Noboru Satoh(Satoh Noboru); Sales Department"
+          },
+          "approvedDateTime": "2017-09-26T06:25:18Z"
+        }
+      ],
+      "repeatInfo": {
+        "type": "EVERY_DAY",
+        "period": {
+          "start": "2017-04-01",
+          "end": "2018-03-31"
+        },
+        "time": {
+          "start": "09:00",
+          "end": "18:00"
+        },
+        "timeZone": "Asia/Tokyo",
+        "isAllDay": false,
+        "isStartOnly": false,
+        "dayOfWeek": "MON",
+        "dayOfMonth": "EOM",
+        "exclusiveDateTimes": [
+          {
+            "start": "2017-12-28T00:00:00+09:00",
+            "end": "2017-12-29T00:00:00+09:00"
+          }
+        ]
+      },
+      "temporaryEventCandidates": [
+        {
+          "end": {
+            "dateTime": "2017-06-06T09:00:00+09:00",
+            "timeZone": "Asia/Tokyo"
+          },
+          "start": {
+            "dateTime": "2017-06-06T10:00:00+09:00",
+            "timeZone": "Asia/Tokyo"
+          },
+          "facility": {
+            "id": 1,
+            "code": "room-a",
+            "name": "ROOM-A"
+          }
+        }
+      ],
+      "additionalItems": {
+        "item": {
+          "value": "string"
+        }
+      },
+      "repeatId": "201712150900"
+    }];
 
+        const garoonLogin = document.getElementById("garoon-login");
+        const eventsList = document.getElementById("events-list");
+        const element = document.createElement("ul");
+        for (const event of result.events) {
+            const date = new Date(event.start.dateTime);
+            const list = document.createElement("li");
+            list.setAttribute("style", "font-size:12px");
+            list.innerHTML = `${date.toDateString()}: ${event.eventMenu} ${event.subject}`;
+            element.append(list);
+        }
+        eventsList.append(element);
+
+        localStorage.setItem("garoonEvents", eventsList.innerHTML);
+        localStorage.setItem("garoonUser", user);
+        chrome.runtime.sendMessage({message: "login"});
         socket.emit("login", {user: user, company: company, events: result.events});
+
         window.location.reload();
     } catch (error) {
         alert(error);
     }
 }
 
-function notification(data)
-{
-    let facilities = "";
-    for (const facility of data.event.facilities) {
-        facilities += `\n${facility.name}`;
-    }
-    const title = "Garoon Notification";
-    const message = data.event.eventMenu + data.event.subject + facilities;
-
-    chrome.notifications.onClicked.addListener(() => {
-        const url = `https://${data.company}.cybozu.com/g/schedule/view.csp?event=${data.event.id}`;
-        chrome.tabs.create({url: url});
-    })
-
-    chrome.notifications.create({
-        type: "basic",
-        iconUrl: "logo.png",
-        title: title,
-        message: message,
-    })
-}
-
 // Register handler for submit button
 const submitButton = document.getElementById("submit");
 submitButton.addEventListener("click", submit);
 
-// Register handler for notification
-socket.on("notification", notification);
-},{"socket.io-client":30}],41:[function(require,module,exports){
+if (localStorage.getItem("garoonUser")) {
+    const garoonLogin = document.getElementById("garoon-login");
+    const eventsList = document.getElementById("events-list");
+    eventsList.innerHTML = localStorage.getItem("garoonEvents");
+    eventsList.style.display = "block";
+    garoonLogin.style.display = "none";
+}
+},{"socket.io-client":31}],42:[function(require,module,exports){
 'use strict'
 
 exports.byteLength = byteLength
@@ -6433,9 +6625,9 @@ function fromByteArray (uint8) {
   return parts.join('')
 }
 
-},{}],42:[function(require,module,exports){
-
 },{}],43:[function(require,module,exports){
+
+},{}],44:[function(require,module,exports){
 /*!
  * The buffer module from node.js, for the browser.
  *
@@ -8214,7 +8406,7 @@ function numberIsNaN (obj) {
   return obj !== obj // eslint-disable-line no-self-compare
 }
 
-},{"base64-js":41,"ieee754":44}],44:[function(require,module,exports){
+},{"base64-js":42,"ieee754":45}],45:[function(require,module,exports){
 exports.read = function (buffer, offset, isLE, mLen, nBytes) {
   var e, m
   var eLen = (nBytes * 8) - mLen - 1
@@ -8300,7 +8492,7 @@ exports.write = function (buffer, value, offset, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128
 }
 
-},{}],45:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -8486,4 +8678,4 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}]},{},[40]);
+},{}]},{},[1,41]);
